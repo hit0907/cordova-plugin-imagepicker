@@ -8,6 +8,7 @@
 #import "CTPicker.h"
 #import <ImageIO/ImageIO.h>
 #import <MobileCoreServices/MobileCoreServices.h>
+#import <Photos/Photos.h>
 
 #define CDV_PHOTO_PREFIX @"cdv_photo_"
 
@@ -22,6 +23,31 @@
 @synthesize callbackId;
 
 - (void) getPictures:(CDVInvokedUrlCommand *)command {
+
+	PHAuthorizationStatus status = [PHPhotoLibrary authorizationStatus];
+
+	UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Do you want to say hello?"
+                                                message:[NSString stringWithFormat:@"Status: %@", status],
+                                               delegate:self
+                                      cancelButtonTitle:@"Cancel"
+                                      otherButtonTitles:@"OK",nil];
+	[alert show];
+	
+	switch (status) {
+		case PHAuthorizationStatusAuthorized:
+		    break;
+		case PHAuthorizationStatusNotDetermined:
+		{
+		    [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus authorizationStatus)
+		    {
+		       	
+		    }];
+		    break;
+		}
+		default:
+		    break;
+	}
+
 	NSDictionary *options = [command.arguments objectAtIndex: 0];
     [self.commandDelegate runInBackground:^{
         NSInteger maxImages = [options[@"maxImages"] integerValue];
